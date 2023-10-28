@@ -1884,7 +1884,7 @@ GameObject:
   - component: {fileID: 4402896631852958284}
   - component: {fileID: 3703889880684320646}
   m_Layer: 0
-  m_Name: BishopPrefab
+  m_Name: Bishop
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

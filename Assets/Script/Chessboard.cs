@@ -11,14 +11,20 @@ public class Chessboard : MonoBehaviour
     private Vector2Int currentHover;
     private Vector3 bounds;
 
+
     [Header("Tiles")]
     [SerializeField] private Material tileMaterial;
     [SerializeField] private float tileSize = 1.0f;
     [SerializeField] private float yOffset = 0.2f;
     [SerializeField] private Vector3 boardCenter = Vector3.zero;
 
+    [Header("Team's Prefab")]
+    [SerializeField] private GameObject[] redTeamPrefab;
+    [SerializeField] private GameObject[] blueTeamPrefab;
     private void Awake() {
         GenerateAllTiles(tileSize, TILE_COUNT_X, TILE_COUNT_Y);
+    
+        SpawningSinglePiece(ChessPieceType.Rook, 0, redTeamPrefab);
     }
     private void Update() {
         if(!currentCam){
@@ -101,4 +107,19 @@ public class Chessboard : MonoBehaviour
 
         return -Vector2Int.one;  //Invalid
     }
+
+    // Spawning chess piece
+    private void SpawnAllPieces(){
+
+    }
+
+    private ChessPiece SpawningSinglePiece(ChessPieceType type, int team, GameObject[] prefabs){
+        ChessPiece cp = Instantiate(prefabs[(int)type-1],transform).GetComponent<ChessPiece>();
+        cp.type = type;
+        cp.team = team;
+        
+        return cp;
+
+    }   
+
 }
