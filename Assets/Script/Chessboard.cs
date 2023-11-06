@@ -55,6 +55,16 @@ public class Chessboard : MonoBehaviour
                 currentHover = hitPosition;
                 tiles[hitPosition.x, hitPosition.y].layer = LayerMask.NameToLayer("Hover");
             }
+        
+            if(Input.GetMouseButtonDown(0)){
+                if(chessPieces[hitPosition.x, hitPosition.y] != null){
+                    //player's turn
+                    if(true){
+                        
+                    }
+                }
+            }
+
         }
         else
         {
@@ -64,6 +74,8 @@ public class Chessboard : MonoBehaviour
                 currentHover = -Vector2Int.one;
             }
         }
+
+
 
     }
 
