@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Chessboard : MonoBehaviour
@@ -11,6 +13,8 @@ public class Chessboard : MonoBehaviour
     private Vector2Int currentHover;
     private Vector3 bounds;
     private ChessPiece[,] chessPieces;
+    private ChessPiece currentPiece;
+    private bool isClicked;
 
 
     [Header("Tiles")]
@@ -25,7 +29,7 @@ public class Chessboard : MonoBehaviour
 
     private void Awake() {
         GenerateAllTiles(tileSize, TILE_COUNT_X, TILE_COUNT_Y);
-    
+        isClicked = false;
         SpawnAllPieces();
         PositionAllPieces();
     }
@@ -60,7 +64,13 @@ public class Chessboard : MonoBehaviour
                 if(chessPieces[hitPosition.x, hitPosition.y] != null){
                     //player's turn
                     if(true){
-                        
+                        isClicked = true;
+                        currentPiece = chessPieces[hitPosition.x, hitPosition.y];
+                        Debug.Log("x: " + hitPosition.x + "; y: " +hitPosition.y);
+                        Vector2Int previousPos = new Vector2Int(currentPiece.currentX, currentPiece.currentY);
+                        if(Input.GetMouseButtonDown(0)){
+                            bool validMove = MoveTo(currentPiece, hitPosition.x, hitPosition.y);
+                        }
                     }
                 }
             }
@@ -77,6 +87,22 @@ public class Chessboard : MonoBehaviour
 
 
 
+    }
+
+    private bool MoveTo(ChessPiece cp, int x, int y)
+    {
+        Vector2Int prePos = new Vector2Int(cp.currentX, cp.currentY);
+        if(chessPieces[x, y] != null){
+            ChessPiece ocp = chessPieces[x, y];
+            if(cp.team == ocp.team)
+                return false;
+        }
+
+        chessPieces[x, y] = cp;
+        chessPieces[prePos.x, prePos.y] = null;
+
+        PositionSinglePiece(x,y);
+        return true;
     }
 
     private void GenerateAllTiles(float tileSize, int tileCountX, int tileCountY){
