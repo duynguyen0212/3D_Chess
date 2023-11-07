@@ -14,7 +14,7 @@ public class Chessboard : MonoBehaviour
     private Vector3 bounds;
     private ChessPiece[,] chessPieces;
     private ChessPiece currentPiece;
-    private bool isClicked;
+    public bool isClicked = false;
 
 
     [Header("Tiles")]
@@ -29,7 +29,6 @@ public class Chessboard : MonoBehaviour
 
     private void Awake() {
         GenerateAllTiles(tileSize, TILE_COUNT_X, TILE_COUNT_Y);
-        isClicked = false;
         SpawnAllPieces();
         PositionAllPieces();
     }
@@ -63,16 +62,17 @@ public class Chessboard : MonoBehaviour
             if(Input.GetMouseButtonDown(0)){
                 if(chessPieces[hitPosition.x, hitPosition.y] != null){
                     //player's turn
-                    if(true){
+                    
                         isClicked = true;
                         currentPiece = chessPieces[hitPosition.x, hitPosition.y];
-                        Debug.Log("x: " + hitPosition.x + "; y: " +hitPosition.y);
-                        Vector2Int previousPos = new Vector2Int(currentPiece.currentX, currentPiece.currentY);
-                        if(Input.GetMouseButtonDown(0)){
-                            bool validMove = MoveTo(currentPiece, hitPosition.x, hitPosition.y);
-                        }
-                    }
+                        return;                   
                 }
+            }
+            if(isClicked && Input.GetMouseButtonDown(0)){
+                    Vector2Int previousPos = new Vector2Int(currentPiece.currentX, currentPiece.currentY);
+                    bool validMove = MoveTo(currentPiece, hitPosition.x, hitPosition.y);
+                    
+                    isClicked = false;
             }
 
         }
