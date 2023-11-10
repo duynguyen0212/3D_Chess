@@ -71,7 +71,9 @@ public class Chessboard : MonoBehaviour
             if(isClicked && Input.GetMouseButtonDown(0)){
                     Vector2Int previousPos = new Vector2Int(currentPiece.currentX, currentPiece.currentY);
                     bool validMove = MoveTo(currentPiece, hitPosition.x, hitPosition.y);
-                    
+                    if(!validMove){
+                        currentPiece.transform.position = GetTileCenter(previousPos.x, previousPos.y);
+                    }
                     isClicked = false;
             }
 
@@ -100,9 +102,17 @@ public class Chessboard : MonoBehaviour
 
         chessPieces[x, y] = cp;
         chessPieces[prePos.x, prePos.y] = null;
-
-        PositionSinglePiece(x,y);
+        StartCoroutine(MoveToCo(x, y));
+        //PositionSinglePiece(x,y);
         return true;
+    }
+
+    private IEnumerator MoveToCo(int x, int y){
+        chessPieces[x,y].currentX = x;
+        chessPieces[x,y].currentY = y;
+        chessPieces[x,y].SetPos(GetTileCenter(x,y));
+        yield return new WaitForSeconds(.1f);
+
     }
 
     private void GenerateAllTiles(float tileSize, int tileCountX, int tileCountY){
