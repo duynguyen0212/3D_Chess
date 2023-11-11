@@ -720,6 +720,7 @@ MonoBehaviour:
   team: 0
   currentX: 0
   currentY: 0
+  anim: {fileID: 5993430477917597281}
 --- !u!1 &5993430477945544137
 GameObject:
   m_ObjectHideFlags: 0
