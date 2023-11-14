@@ -20,20 +20,35 @@ public class ChessPiece : MonoBehaviour
     private Vector3 desiredPos, desiredScale = Vector3.one;  
     public Animator anim;
 
-    protected virtual void Update(){
-        transform.localScale = Vector3.Lerp(transform.localScale, desiredScale, Time.deltaTime*20);
-        transform.position =Vector3.Lerp(transform.position, desiredPos, Time.deltaTime * 20);
+    void Update(){
+        transform.localScale = Vector3.Lerp(transform.localScale, desiredScale, Time.deltaTime*10);
+        StartCoroutine(MoveToPosition(desiredPos, 20f));
     }
     public virtual void SetPos(Vector3 pos){
         desiredPos =pos;
-        transform.position = desiredPos;
+        StartCoroutine(MoveToPosition(desiredPos, 2f));
+        
     } 
     public virtual void SetScale(Vector3 scale){
-        desiredPos =scale;
+        desiredScale =scale;
         transform.position = desiredScale;
     } 
 
     public void Move(int x, int y){
         
+    }
+    private IEnumerator MoveToPosition(Vector3 targetPosition, float duration)
+    {
+        float elapsedTime = 0f;
+        Vector3 startingPosition = transform.position;
+        anim.SetBool("walk", true);
+        while (elapsedTime < duration)
+        {
+            transform.position = Vector3.Lerp(startingPosition, targetPosition, elapsedTime / duration);
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+        anim.SetBool("walk", false);
+        transform.position = targetPosition;
     }
 }

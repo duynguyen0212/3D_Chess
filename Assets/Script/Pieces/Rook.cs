@@ -11,8 +11,8 @@ public class Rook : ChessPiece
     }
 
     // Update is called once per frame
-   protected override void Update()
+    void Update()
     {
-       base.Update();
+       
     }
 }
