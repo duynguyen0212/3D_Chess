@@ -26,6 +26,8 @@ public class Chessboard : MonoBehaviour
     [Header("Team's Prefab")]
     [SerializeField] private GameObject[] redTeamPrefab;
     [SerializeField] private GameObject[] blueTeamPrefab;
+    public int currentPlayer = 1;
+    
 
     private void Awake() {
         GenerateAllTiles(tileSize, TILE_COUNT_X, TILE_COUNT_Y);
@@ -60,13 +62,13 @@ public class Chessboard : MonoBehaviour
             }
         
             if(Input.GetMouseButtonDown(0)){
-                if(chessPieces[hitPosition.x, hitPosition.y] != null){
+                if(chessPieces[hitPosition.x, hitPosition.y] != null && chessPieces[hitPosition.x, hitPosition.y].team == currentPlayer){
                     //player's turn
-                    
-                        isClicked = true;
-                        currentPiece = chessPieces[hitPosition.x, hitPosition.y];
-                        return;                   
+                    isClicked = true;
+                    currentPiece = chessPieces[hitPosition.x, hitPosition.y];
+                    return;                   
                 }
+
             }
             if(isClicked && Input.GetMouseButtonDown(0)){
                     Vector2Int previousPos = new Vector2Int(currentPiece.currentX, currentPiece.currentY);
@@ -74,7 +76,9 @@ public class Chessboard : MonoBehaviour
                     if(!validMove){
                         currentPiece.transform.position = GetTileCenter(previousPos.x, previousPos.y);
                     }
+                    currentPlayer = (currentPlayer+1)%2;
                     isClicked = false;
+                    
             }
 
         }
@@ -94,24 +98,33 @@ public class Chessboard : MonoBehaviour
     private bool MoveTo(ChessPiece cp, int x, int y)
     {
         Vector2Int prePos = new Vector2Int(cp.currentX, cp.currentY);
-        if(chessPieces[x, y] != null){
-            ChessPiece ocp = chessPieces[x, y];
-            if(cp.team == ocp.team)
-                return false;
+        if(chessPieces[x, y] != null && chessPieces[x, y].team != cp.team)
+        {
+            ChessPiece capturedPiece = chessPieces[x, y];
+            // Destroy(capturedPiece.gameObject);
+            StartCoroutine(AttackChessPiece(capturedPiece.currentX, capturedPiece.currentY, capturedPiece));
         }
 
         chessPieces[x, y] = cp;
         chessPieces[prePos.x, prePos.y] = null;
         
-        StartCoroutine(MoveToCo(x, y));
+        MoveToCo(x, y);
         return true;
     }
 
-    private IEnumerator MoveToCo(int x, int y){
+    private IEnumerator AttackChessPiece(int x, int y, ChessPiece cp){
+        chessPieces[x,y].currentX = x;
+        chessPieces[x,y].currentY = y-1;
+        chessPieces[x,y].SetPos(GetTileCenter(x,y-1));
+        yield return new WaitForSeconds(1f);
+        Destroy(cp.gameObject);
+        MoveToCo(x,y);
+    }
+
+    private void MoveToCo(int x, int y){
         chessPieces[x,y].currentX = x;
         chessPieces[x,y].currentY = y;
         chessPieces[x,y].SetPos(GetTileCenter(x,y));
-        yield return new WaitForSeconds(.1f);
 
     }
 

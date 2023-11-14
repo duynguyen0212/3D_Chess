@@ -37,6 +37,9 @@ public class ChessPiece : MonoBehaviour
     public void Move(int x, int y){
         
     }
+    public void Death(){
+        Destroy(gameObject);
+    }
     private IEnumerator MoveToPosition(Vector3 targetPosition, float duration)
     {
         float elapsedTime = 0f;
