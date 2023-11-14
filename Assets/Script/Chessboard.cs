@@ -74,8 +74,9 @@ public class Chessboard : MonoBehaviour
                     Vector2Int previousPos = new Vector2Int(currentPiece.currentX, currentPiece.currentY);
                     bool validMove = MoveTo(currentPiece, hitPosition.x, hitPosition.y);
                     if(!validMove){
-                        currentPiece.transform.position = GetTileCenter(previousPos.x, previousPos.y);
+                        return;
                     }
+                    
                     currentPlayer = (currentPlayer+1)%2;
                     isClicked = false;
                     
@@ -101,27 +102,60 @@ public class Chessboard : MonoBehaviour
         if(chessPieces[x, y] != null && chessPieces[x, y].team != cp.team)
         {
             ChessPiece capturedPiece = chessPieces[x, y];
-            // Destroy(capturedPiece.gameObject);
-            StartCoroutine(AttackChessPiece(capturedPiece.currentX, capturedPiece.currentY, capturedPiece));
+            StartCoroutine(AttackChessPiece(cp, capturedPiece, x, y, prePos));
+            return true;
         }
 
         chessPieces[x, y] = cp;
         chessPieces[prePos.x, prePos.y] = null;
         
         MoveToCo(x, y);
+        
         return true;
     }
 
-    private IEnumerator AttackChessPiece(int x, int y, ChessPiece cp){
-        chessPieces[x,y].currentX = x;
-        chessPieces[x,y].currentY = y-1;
-        chessPieces[x,y].SetPos(GetTileCenter(x,y-1));
-        yield return new WaitForSeconds(1f);
-        Destroy(cp.gameObject);
-        MoveToCo(x,y);
+    private IEnumerator AttackChessPiece(ChessPiece attacker, ChessPiece target, int x, int y, Vector2Int prePos){
+        int xOffset, yOffset;
+        chessPieces[x, y+1] = attacker;
+        chessPieces[prePos.x, prePos.y] = null;
+        
+        MoveToCo(x, y+1);
+        yield return new WaitForSeconds(5f);
+        Destroy(target.gameObject);
+        chessPieces[x, y] = attacker;
+        chessPieces[prePos.x, prePos.y] = null;
+        
+        MoveToCo(x, y);
+        
     }
 
     private void MoveToCo(int x, int y){
+        if(chessPieces[x,y].currentY - y > 0 && chessPieces[x,y].currentX == x){
+            Debug.Log("moving up");
+        }
+        else if (chessPieces[x,y].currentY - y < 0 && chessPieces[x,y].currentX == x){
+            Debug.Log("moving down");
+        }
+        else if(chessPieces[x,y].currentX - x < 0 && chessPieces[x,y].currentY == y){
+            Debug.Log("moving left");
+        }
+        else if(chessPieces[x,y].currentX - x > 0 && chessPieces[x,y].currentY == y){
+             Debug.Log("moving right");
+        }
+        else if (chessPieces[x,y].currentY - y < 0 && chessPieces[x,y].currentX - x < 0){
+            Debug.Log("cross down left");
+        }
+        else if(chessPieces[x,y].currentY - y < 0 && chessPieces[x,y].currentX - x > 0){
+            Debug.Log("cross down right");
+        }
+        else if(chessPieces[x,y].currentY - y > 0 && chessPieces[x,y].currentX - x > 0){
+             Debug.Log("cross up right");
+        }
+        else{
+            Debug.Log("cross up left");
+        }
+
+
         chessPieces[x,y].currentX = x;
         chessPieces[x,y].currentY = y;
         chessPieces[x,y].SetPos(GetTileCenter(x,y));
