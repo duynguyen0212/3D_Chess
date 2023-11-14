@@ -1940,7 +1940,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d59ba39afbd47a5469e8796d35665e9a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  type: 0
+  type: 4
   team: 0
   currentX: 0
   currentY: 0
