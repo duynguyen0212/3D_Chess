@@ -20,7 +20,7 @@ public class ChessPiece : MonoBehaviour
     private Vector3 desiredPos, desiredScale = Vector3.one;  
     public Animator anim;
 
-    private void Update(){
+    protected virtual void Update(){
         transform.localScale = Vector3.Lerp(transform.localScale, desiredScale, Time.deltaTime*20);
         transform.position =Vector3.Lerp(transform.position, desiredPos, Time.deltaTime * 20);
     }
@@ -34,6 +34,6 @@ public class ChessPiece : MonoBehaviour
     } 
 
     public void Move(int x, int y){
-
+        
     }
 }

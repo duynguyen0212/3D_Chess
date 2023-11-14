@@ -102,6 +102,7 @@ public class Chessboard : MonoBehaviour
 
         chessPieces[x, y] = cp;
         chessPieces[prePos.x, prePos.y] = null;
+        
         StartCoroutine(MoveToCo(x, y));
         //PositionSinglePiece(x,y);
         return true;
@@ -212,7 +213,7 @@ public class Chessboard : MonoBehaviour
     private void PositionSinglePiece(int x, int y, bool force = false){
         chessPieces[x,y].currentX = x;
         chessPieces[x,y].currentY = y;
-        chessPieces[x,y].transform.position = GetTileCenter(x, y);
+        chessPieces[x,y].SetPos(GetTileCenter(x, y));
     }
 
     private Vector3 GetTileCenter(int x, int y){
