@@ -12,7 +12,7 @@ public class Chessboard : MonoBehaviour
     private Camera currentCam;
     private Vector2Int currentHover;
     private Vector3 bounds;
-    private ChessPiece[,] chessPieces;
+    public ChessPiece[,] chessPieces;
     private ChessPiece currentPiece;
     public bool isClicked = false;
     private List<Vector2Int> availableMoves = new List<Vector2Int>();
@@ -31,12 +31,21 @@ public class Chessboard : MonoBehaviour
     [SerializeField] private GameObject[] blueTeamPrefab;
     public int currentPlayer = 1;
     private int attackOffsetX, attackOffsetY;
+    public RandomAI randomAI;
 
     private void Awake() {
         GenerateAllTiles(tileSize, TILE_COUNT_X, TILE_COUNT_Y);
         SpawnAllPieces();
         PositionAllPieces();
     }
+    // private void Start() {
+    //     randomAI = GetComponent<RandomAI>();
+    //     if (randomAI == null)
+    //     {
+    //         Debug.LogError("randomAI not assigned!");
+    //     }
+        
+    // }
     private void Update() {
         if(!currentCam){
             currentCam = Camera.main;
@@ -72,9 +81,19 @@ public class Chessboard : MonoBehaviour
                 currentHover = hitPosition;
                 tiles[hitPosition.x, hitPosition.y].layer = LayerMask.NameToLayer("Hover");
             }
-        
+
+            if(currentPlayer == 0 && currentPiece.isMoving == false){
+                ChessPiece AIChesspiece = randomAI.GetRandomPiece();
+                Vector2Int AIMove;
+                availableMoves = AIChesspiece.GetAvailableMove(ref chessPieces, TILE_COUNT_X, TILE_COUNT_Y);
+                AIMove = availableMoves[UnityEngine.Random.Range(0, availableMoves.Count)];
+                Debug.Log("x: " + AIMove.x + ", y: " +AIMove.y);
+                MoveTo(AIChesspiece, AIMove.x, AIMove.y);
+                RevHighlightTiles(); 
+                currentPlayer = (currentPlayer+1)%2;
+            }
             if(Input.GetMouseButtonDown(0)){
-                if(chessPieces[hitPosition.x, hitPosition.y] != null && chessPieces[hitPosition.x, hitPosition.y].team == currentPlayer){
+                if(chessPieces[hitPosition.x, hitPosition.y] != null && chessPieces[hitPosition.x, hitPosition.y].team == 1 && currentPlayer == 1){
                     //player's turn
                     isClicked = true;
                     if(currentPiece != chessPieces[hitPosition.x, hitPosition.y]) RevHighlightTiles();
@@ -88,8 +107,8 @@ public class Chessboard : MonoBehaviour
 
             }
             if(isClicked && Input.GetMouseButtonDown(0)){
-                    ChessPiece tempPiece = chessPieces[hitPosition.x, hitPosition.y];
-                    Vector2Int previousPos = new Vector2Int(currentPiece.currentX, currentPiece.currentY);
+                    // ChessPiece tempPiece = chessPieces[hitPosition.x, hitPosition.y];
+                    // Vector2Int previousPos = new Vector2Int(currentPiece.currentX, currentPiece.currentY);
 
                     bool validMove = MoveTo(currentPiece, hitPosition.x, hitPosition.y);
                     if(!validMove){
@@ -151,28 +170,6 @@ public class Chessboard : MonoBehaviour
         PWScreen.SetActive(true);
         PWScreen.transform.GetChild(winningTeam).gameObject.SetActive(true);
     }
-
-    // public void OnResetButton(){
-    //     PWScreen.transform.GetChild(0).gameObject.SetActive(false);
-    //     PWScreen.transform.GetChild(1).gameObject.SetActive(false);
-    //     PWScreen.SetActive(false);
-    //     //clean up
-    //     for (int x = 0; x < TILE_COUNT_X; x++)
-    //     {
-    //         for (int y = 0; y < TILE_COUNT_Y; y++)
-    //         {
-    //             if(chessPieces[x,y]!= null)
-    //                 Destroy(chessPieces[x,y].gameObject);
-    //             chessPieces[x,y] = null;
-    //         }
-    //     }
-
-    //     currentPiece = null;
-    //     availableMoves = new List<Vector2Int>();
-    //     SpawnAllPieces();
-    //     PositionAllPieces();
-    //     currentPlayer = 1;
-    // }
 
     public void OnMenuButton(){
 

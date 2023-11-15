@@ -37,7 +37,7 @@ public class ChessPiece : MonoBehaviour
     }
     public virtual void SetPos(Vector3 pos){
         desiredPos =pos;
-        StartCoroutine(MoveToPosition(desiredPos, 3f));
+        StartCoroutine(MoveToPosition(desiredPos, 2f));
         
     } 
     public virtual void SetScale(Vector3 scale){
