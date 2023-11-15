@@ -66,6 +66,8 @@ public class Chessboard : MonoBehaviour
                 if(chessPieces[hitPosition.x, hitPosition.y] != null && chessPieces[hitPosition.x, hitPosition.y].team == currentPlayer){
                     //player's turn
                     isClicked = true;
+                    if(currentPiece != chessPieces[hitPosition.x, hitPosition.y]) RevHighlightTiles();
+                    
                     currentPiece = chessPieces[hitPosition.x, hitPosition.y];
                     //Get avaialable move and highlight it
                     availableMoves = currentPiece.GetAvailableMove(ref chessPieces, TILE_COUNT_X, TILE_COUNT_Y);
@@ -75,15 +77,18 @@ public class Chessboard : MonoBehaviour
 
             }
             if(isClicked && Input.GetMouseButtonDown(0)){
+                    ChessPiece tempPiece = chessPieces[hitPosition.x, hitPosition.y];
                     Vector2Int previousPos = new Vector2Int(currentPiece.currentX, currentPiece.currentY);
+
                     bool validMove = MoveTo(currentPiece, hitPosition.x, hitPosition.y);
-                    RevHighlightTiles();
                     if(!validMove){
                         return;
                     }
-                    
-                    currentPlayer = (currentPlayer+1)%2;
-                    isClicked = false;
+                    else {
+                        currentPlayer = (currentPlayer+1)%2;
+                        isClicked = false;
+                    }
+                    RevHighlightTiles();
                     
             }
 
@@ -103,6 +108,8 @@ public class Chessboard : MonoBehaviour
 
     private bool MoveTo(ChessPiece cp, int x, int y)
     {
+        if(!ContainsValidMove(ref availableMoves, new Vector2(x,y)))
+            return false;
         Vector2Int prePos = new Vector2Int(cp.currentX, cp.currentY);
         if(chessPieces[x, y] != null && chessPieces[x, y].team != cp.team)
         {

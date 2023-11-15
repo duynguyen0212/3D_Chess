@@ -21,7 +21,7 @@ public class ChessPiece : MonoBehaviour
     public Animator anim;
     public bool isProcessing;
     public bool isMoving;
-    public List<Vector2Int> GetAvailableMove(ref ChessPiece[,] board, int tileCountX, int tileCountY){
+    public virtual List<Vector2Int> GetAvailableMove(ref ChessPiece[,] board, int tileCountX, int tileCountY){
         List<Vector2Int> r = new List<Vector2Int>();
 
         r.Add(new Vector2Int(3,3));
