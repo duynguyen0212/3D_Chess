@@ -116,26 +116,38 @@ public class Chessboard : MonoBehaviour
 
     private IEnumerator AttackChessPiece(ChessPiece attacker, ChessPiece target, int x, int y, Vector2Int prePos){
         // UP
-        if(attacker.currentY - y > 0 && attacker.currentX == x) SetAttackOffset(0,1);
+        if(attacker.currentY - y > 1 && attacker.currentX == x) SetAttackOffset(0,1);
         // DOWN
-        else if (attacker.currentY - y < 0 && attacker.currentX == x) SetAttackOffset(0,-1);
+        else if (attacker.currentY - y < -1 && attacker.currentX == x) SetAttackOffset(0,-1);
         // LEFT
-        else if(attacker.currentX - x < 0 && attacker.currentY == y) SetAttackOffset(1,0);
+        else if(attacker.currentX - x < -1 && attacker.currentY == y) SetAttackOffset(1,0);
         //RIGHT
-        else if(attacker.currentX - x > 0 && attacker.currentY == y) SetAttackOffset(-1,0);
+        else if(attacker.currentX - x > 1 && attacker.currentY == y) SetAttackOffset(-1,0);
         // DOWN LEFT
-        else if (attacker.currentY - y < 0 && attacker.currentX - x < 0) SetAttackOffset(-1,-1);
+        else if (attacker.currentY - y < -1 && attacker.currentX - x < -1) SetAttackOffset(-1,-1);
         //DOWN RIGHT
-        else if(attacker.currentY - y < 0 && attacker.currentX - x > 0) SetAttackOffset(1,-1);
+        else if(attacker.currentY - y < -1 && attacker.currentX - x > 1) SetAttackOffset(1,-1);
         //UP RIGHT
-        else if(attacker.currentY - y > 0 && attacker.currentX - x > 0) SetAttackOffset(1,1);
+        else if(attacker.currentY - y > 1 && attacker.currentX - x > 1) SetAttackOffset(1,1);
         //UP LEFT
-        else SetAttackOffset(-1,1);
+        else if(attacker.currentY - y > 1 && attacker.currentX - x < -1) SetAttackOffset(-1,1);
+        // OTHER
+        else {
+            SetAttackOffset(0,0);
+            StartCoroutine(attacker.AttackingCoroutine()); 
+            Destroy(target.gameObject);
+            chessPieces[x + attackOffsetX, y + attackOffsetY] = attacker;
+            chessPieces[prePos.x, prePos.y] = null;
+            MoveToCo(x, y);
+            yield break;
+        }
         
         chessPieces[x + attackOffsetX, y + attackOffsetY] = attacker;
         chessPieces[prePos.x, prePos.y] = null;
         MoveToCo(x + attackOffsetX, y+ attackOffsetY);
-        yield return new WaitForSeconds(5f);
+        yield return new WaitForSeconds(3f);
+        StartCoroutine(attacker.AttackingCoroutine());
+        yield return new WaitForSeconds(3f);
         Destroy(target.gameObject);
         chessPieces[x, y] = attacker;
         chessPieces[prePos.x, prePos.y] = null;
@@ -145,32 +157,6 @@ public class Chessboard : MonoBehaviour
     }
 
     private void MoveToCo(int x, int y){
-        // if(chessPieces[x,y].currentY - y > 0 && chessPieces[x,y].currentX == x){
-        //     Debug.Log("moving up");
-        // }
-        // else if (chessPieces[x,y].currentY - y < 0 && chessPieces[x,y].currentX == x){
-        //     Debug.Log("moving down");
-        // }
-        // else if(chessPieces[x,y].currentX - x < 0 && chessPieces[x,y].currentY == y){
-        //     Debug.Log("moving left");
-        // }
-        // else if(chessPieces[x,y].currentX - x > 0 && chessPieces[x,y].currentY == y){
-        //      Debug.Log("moving right");
-        // }
-        // else if (chessPieces[x,y].currentY - y < 0 && chessPieces[x,y].currentX - x < 0){
-        //     Debug.Log("cross down left");
-        // }
-        // else if(chessPieces[x,y].currentY - y < 0 && chessPieces[x,y].currentX - x > 0){
-        //     Debug.Log("cross down right");
-        // }
-        // else if(chessPieces[x,y].currentY - y > 0 && chessPieces[x,y].currentX - x > 0){
-        //      Debug.Log("cross up right");
-        // }
-        // else{
-        //     Debug.Log("cross up left");
-        // }
-
-
         chessPieces[x,y].currentX = x;
         chessPieces[x,y].currentY = y;
         chessPieces[x,y].SetPos(GetTileCenter(x,y));
