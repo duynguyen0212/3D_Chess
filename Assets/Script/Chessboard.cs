@@ -131,10 +131,13 @@ public class Chessboard : MonoBehaviour
         else if(attacker.currentY - y > 1 && attacker.currentX - x > 1) SetAttackOffset(1,1);
         //UP LEFT
         else if(attacker.currentY - y > 1 && attacker.currentX - x < -1) SetAttackOffset(-1,1);
-        // OTHER
+        // OTHER, CHESS PIECE DOESN'T NEED TO MOVE TO ATTACK
         else {
             SetAttackOffset(0,0);
             StartCoroutine(attacker.AttackingCoroutine()); 
+            yield return new WaitForSeconds(1f);
+            StartCoroutine(target.DeathCo());
+            yield return new WaitForSeconds(.5f);
             Destroy(target.gameObject);
             chessPieces[x + attackOffsetX, y + attackOffsetY] = attacker;
             chessPieces[prePos.x, prePos.y] = null;
@@ -147,7 +150,9 @@ public class Chessboard : MonoBehaviour
         MoveToCo(x + attackOffsetX, y+ attackOffsetY);
         yield return new WaitForSeconds(3f);
         StartCoroutine(attacker.AttackingCoroutine());
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(1f);
+        StartCoroutine(target.DeathCo());
+        yield return new WaitForSeconds(.5f);
         Destroy(target.gameObject);
         chessPieces[x, y] = attacker;
         chessPieces[prePos.x, prePos.y] = null;

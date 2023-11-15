@@ -34,10 +34,6 @@ public class ChessPiece : MonoBehaviour
         desiredScale =scale;
         transform.position = desiredScale;
     } 
-
-    public void Death(){
-        Destroy(gameObject);
-    }
     private IEnumerator MoveToPosition(Vector3 targetPosition, float duration)
     {
         float elapsedTime = 0f;
@@ -56,12 +52,15 @@ public class ChessPiece : MonoBehaviour
     }
 
     public IEnumerator AttackingCoroutine(){
-        
-            Debug.Log("attacking");
-            anim.SetBool("attack", true);
-            yield return new WaitForSeconds(1f);
-            anim.SetBool("attack", false);
-        
+        anim.SetBool("attack", true);
+        yield return new WaitForSeconds(1f);
+        anim.SetBool("attack", false);
+    }
+
+    public IEnumerator DeathCo(){
+        Debug.Log("trigger");
+        anim.SetTrigger("die");
+        yield return new WaitForSeconds(1.5f);
     }
 
 }
