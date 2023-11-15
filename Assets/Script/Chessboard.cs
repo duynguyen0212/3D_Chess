@@ -17,6 +17,8 @@ public class Chessboard : MonoBehaviour
     public bool isClicked = false;
     private List<Vector2Int> availableMoves = new List<Vector2Int>();
 
+    [SerializeField] private GameObject PWScreen;
+    private bool isPause;
 
     [Header("Tiles")]
     [SerializeField] private Material tileMaterial;
@@ -39,6 +41,15 @@ public class Chessboard : MonoBehaviour
         if(!currentCam){
             currentCam = Camera.main;
             return;
+        }
+
+        if(Input.GetKeyDown(KeyCode.Escape)){
+            if(isPause){
+                ResumeGame();
+            }
+            else{
+                PauseGame();
+            }
         }
 
         RaycastHit info;
@@ -115,6 +126,12 @@ public class Chessboard : MonoBehaviour
         {
             ChessPiece capturedPiece = chessPieces[x, y];
             StartCoroutine(AttackChessPiece(cp, capturedPiece, x, y, prePos));
+            if(capturedPiece.type == ChessPieceType.King){
+                if(capturedPiece.team == 1)
+                    CheckMate(0);
+                else
+                    CheckMate(1);
+            }
             return true;
         }
 
@@ -123,6 +140,61 @@ public class Chessboard : MonoBehaviour
         MoveToCo(x, y);
         
         return true;
+    }
+
+    //CHeckmate
+    private void CheckMate(int team){
+        DisplayVictory(team);
+    }
+
+    private void DisplayVictory(int winningTeam){
+        PWScreen.SetActive(true);
+        PWScreen.transform.GetChild(winningTeam).gameObject.SetActive(true);
+    }
+
+    // public void OnResetButton(){
+    //     PWScreen.transform.GetChild(0).gameObject.SetActive(false);
+    //     PWScreen.transform.GetChild(1).gameObject.SetActive(false);
+    //     PWScreen.SetActive(false);
+    //     //clean up
+    //     for (int x = 0; x < TILE_COUNT_X; x++)
+    //     {
+    //         for (int y = 0; y < TILE_COUNT_Y; y++)
+    //         {
+    //             if(chessPieces[x,y]!= null)
+    //                 Destroy(chessPieces[x,y].gameObject);
+    //             chessPieces[x,y] = null;
+    //         }
+    //     }
+
+    //     currentPiece = null;
+    //     availableMoves = new List<Vector2Int>();
+    //     SpawnAllPieces();
+    //     PositionAllPieces();
+    //     currentPlayer = 1;
+    // }
+
+    public void OnMenuButton(){
+
+    }
+
+    public void OnExitButton(){
+        Application.Quit();
+    }
+
+    public void PauseGame(){
+        PWScreen.SetActive(true);
+        PWScreen.transform.GetChild(2).gameObject.SetActive(true);
+        Time.timeScale = 0f;
+        isPause = true;
+        
+    }
+    public void ResumeGame(){
+        PWScreen.SetActive(false);
+        PWScreen.transform.GetChild(2).gameObject.SetActive(false);
+        Time.timeScale = 1f;
+        isPause = false;
+        
     }
 
     private IEnumerator AttackChessPiece(ChessPiece attacker, ChessPiece target, int x, int y, Vector2Int prePos){
