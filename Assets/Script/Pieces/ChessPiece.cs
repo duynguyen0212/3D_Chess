@@ -21,6 +21,16 @@ public class ChessPiece : MonoBehaviour
     public Animator anim;
     public bool isProcessing;
     public bool isMoving;
+    public List<Vector2Int> GetAvailableMove(ref ChessPiece[,] board, int tileCountX, int tileCountY){
+        List<Vector2Int> r = new List<Vector2Int>();
+
+        r.Add(new Vector2Int(3,3));
+        r.Add(new Vector2Int(3,4));
+        r.Add(new Vector2Int(4,3));
+        r.Add(new Vector2Int(4,4));
+        return r;
+    }
+
     void Update(){
         transform.localScale = Vector3.Lerp(transform.localScale, desiredScale, Time.deltaTime*10);
         StartCoroutine(MoveToPosition(desiredPos, 20f));
@@ -58,9 +68,8 @@ public class ChessPiece : MonoBehaviour
     }
 
     public IEnumerator DeathCo(){
-        Debug.Log("trigger");
         anim.SetTrigger("die");
-        yield return new WaitForSeconds(1.5f);
+        yield return new WaitForSeconds(1f);
     }
 
 }

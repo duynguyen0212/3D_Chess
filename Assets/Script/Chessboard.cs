@@ -15,6 +15,7 @@ public class Chessboard : MonoBehaviour
     private ChessPiece[,] chessPieces;
     private ChessPiece currentPiece;
     public bool isClicked = false;
+    private List<Vector2Int> availableMoves = new List<Vector2Int>();
 
 
     [Header("Tiles")]
@@ -42,7 +43,7 @@ public class Chessboard : MonoBehaviour
 
         RaycastHit info;
         Ray ray = currentCam.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out info, 100, LayerMask.GetMask("Tile","Hover") ))
+        if (Physics.Raycast(ray, out info, 100, LayerMask.GetMask("Tile","Hover", "Highlight") ))
         {
             // Get the indexes of the tile i've hit
             Vector2Int hitPosition = LookupTileIndex(info.transform.gameObject);
@@ -56,7 +57,7 @@ public class Chessboard : MonoBehaviour
             // If we were already hovering a tile, change the previous one
             if (currentHover != hitPosition)
             {
-                tiles[currentHover.x, currentHover.y].layer = LayerMask.NameToLayer("Tile");
+                tiles[currentHover.x, currentHover.y].layer = ContainsValidMove(ref availableMoves, currentHover) ?  LayerMask.NameToLayer("Highlight") : LayerMask.NameToLayer("Tile");
                 currentHover = hitPosition;
                 tiles[hitPosition.x, hitPosition.y].layer = LayerMask.NameToLayer("Hover");
             }
@@ -66,6 +67,9 @@ public class Chessboard : MonoBehaviour
                     //player's turn
                     isClicked = true;
                     currentPiece = chessPieces[hitPosition.x, hitPosition.y];
+                    //Get avaialable move and highlight it
+                    availableMoves = currentPiece.GetAvailableMove(ref chessPieces, TILE_COUNT_X, TILE_COUNT_Y);
+                    HighlightTiles();
                     return;                   
                 }
 
@@ -73,6 +77,7 @@ public class Chessboard : MonoBehaviour
             if(isClicked && Input.GetMouseButtonDown(0)){
                     Vector2Int previousPos = new Vector2Int(currentPiece.currentX, currentPiece.currentY);
                     bool validMove = MoveTo(currentPiece, hitPosition.x, hitPosition.y);
+                    RevHighlightTiles();
                     if(!validMove){
                         return;
                     }
@@ -87,7 +92,7 @@ public class Chessboard : MonoBehaviour
         {
             if (currentHover != -Vector2Int.one)
             {
-                tiles[currentHover.x, currentHover.y].layer = LayerMask.NameToLayer("Tile");
+                tiles[currentHover.x, currentHover.y].layer = ContainsValidMove(ref availableMoves, currentHover) ?  LayerMask.NameToLayer("Highlight") : LayerMask.NameToLayer("Tile");
                 currentHover = -Vector2Int.one;
             }
         }
@@ -108,7 +113,6 @@ public class Chessboard : MonoBehaviour
 
         chessPieces[x, y] = cp;
         chessPieces[prePos.x, prePos.y] = null;
-        
         MoveToCo(x, y);
         
         return true;
@@ -256,6 +260,21 @@ public class Chessboard : MonoBehaviour
 
     }   
 
+    private void HighlightTiles(){
+        for (int i = 0; i < availableMoves.Count; i++)
+        {
+            tiles[availableMoves[i].x, availableMoves[i].y].layer = LayerMask.NameToLayer("Highlight");
+        }
+    }
+
+    private void RevHighlightTiles(){
+        for (int i = 0; i < availableMoves.Count; i++)
+        {
+            tiles[availableMoves[i].x, availableMoves[i].y].layer = LayerMask.NameToLayer("Tile");
+        }
+        availableMoves.Clear();
+    }
+
     private void PositionAllPieces(){
         for (int x = 0; x < TILE_COUNT_X; x++)
         {
@@ -277,4 +296,12 @@ public class Chessboard : MonoBehaviour
         return new Vector3(x*tileSize, yOffset, y*tileSize) -bounds + new Vector3(tileSize/2,0,tileSize/2);
     }
 
+    private bool ContainsValidMove(ref List<Vector2Int> moves, Vector2 pos){
+        for (int i = 0; i < moves.Count; i++)
+        {
+            if(moves[i].x == pos.x && moves[i].y == pos.y ) return true;
+        }
+
+        return false;
+    }
 }
