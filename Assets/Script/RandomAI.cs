@@ -13,7 +13,8 @@ public class RandomAI : MonoBehaviour
     // Function to get a random piece with available moves
     public ChessPiece GetRandomPiece()
     {
-        ChessPiece cp = null;
+        Debug.Log("waiting for pieces");
+        ChessPiece cp;
         for (int i = 0; i < 8; i++)
         {
             for (int j = 0; j < 8; j++)
@@ -26,14 +27,16 @@ public class RandomAI : MonoBehaviour
                     if (availableMoves.Count > 0)
                     {
                         chessPieceCanMove.Add(cp);
-                        
                     }
                 }
+                if(cp == null)
+                    break;
             }
         }
 
         cp = chessPieceCanMove[Random.Range(0, chessPieceCanMove.Count)];
-        Debug.Log("returning cp: " + cp.type);
+        chessPieceCanMove.Clear();
+        availableMoves.Clear();
         return cp;
     }
 }

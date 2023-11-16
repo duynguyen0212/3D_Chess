@@ -15,6 +15,7 @@ public class Chessboard : MonoBehaviour
     public ChessPiece[,] chessPieces;
     private ChessPiece currentPiece;
     public bool isClicked = false;
+    //private bool isAttacking = false;
     private List<Vector2Int> availableMoves = new List<Vector2Int>();
 
     [SerializeField] private GameObject PWScreen;
@@ -38,14 +39,7 @@ public class Chessboard : MonoBehaviour
         SpawnAllPieces();
         PositionAllPieces();
     }
-    // private void Start() {
-    //     randomAI = GetComponent<RandomAI>();
-    //     if (randomAI == null)
-    //     {
-    //         Debug.LogError("randomAI not assigned!");
-    //     }
-        
-    // }
+
     private void Update() {
         if(!currentCam){
             currentCam = Camera.main;
@@ -87,7 +81,6 @@ public class Chessboard : MonoBehaviour
                 Vector2Int AIMove;
                 availableMoves = AIChesspiece.GetAvailableMove(ref chessPieces, TILE_COUNT_X, TILE_COUNT_Y);
                 AIMove = availableMoves[UnityEngine.Random.Range(0, availableMoves.Count)];
-                Debug.Log("x: " + AIMove.x + ", y: " +AIMove.y);
                 MoveTo(AIChesspiece, AIMove.x, AIMove.y);
                 RevHighlightTiles(); 
                 currentPlayer = (currentPlayer+1)%2;
@@ -107,15 +100,12 @@ public class Chessboard : MonoBehaviour
 
             }
             if(isClicked && Input.GetMouseButtonDown(0)){
-                    // ChessPiece tempPiece = chessPieces[hitPosition.x, hitPosition.y];
-                    // Vector2Int previousPos = new Vector2Int(currentPiece.currentX, currentPiece.currentY);
-
                     bool validMove = MoveTo(currentPiece, hitPosition.x, hitPosition.y);
                     if(!validMove){
                         return;
                     }
                     else {
-                        currentPlayer = (currentPlayer+1)%2;
+                        //currentPlayer = (currentPlayer+1)%2;
                         isClicked = false;
                     }
                     RevHighlightTiles();
@@ -131,9 +121,6 @@ public class Chessboard : MonoBehaviour
                 currentHover = -Vector2Int.one;
             }
         }
-
-
-
     }
 
     private bool MoveTo(ChessPiece cp, int x, int y)
@@ -141,6 +128,8 @@ public class Chessboard : MonoBehaviour
         if(!ContainsValidMove(ref availableMoves, new Vector2(x,y)))
             return false;
         Vector2Int prePos = new Vector2Int(cp.currentX, cp.currentY);
+
+        //attack other piece
         if(chessPieces[x, y] != null && chessPieces[x, y].team != cp.team)
         {
             ChessPiece capturedPiece = chessPieces[x, y];
@@ -156,12 +145,15 @@ public class Chessboard : MonoBehaviour
 
         chessPieces[x, y] = cp;
         chessPieces[prePos.x, prePos.y] = null;
-        MoveToCo(x, y);
-        
+
+        chessPieces[x,y].currentX = x;
+        chessPieces[x,y].currentY = y;
+        chessPieces[x,y].SetPos(GetTileCenter(x,y));
+        currentPlayer = (currentPlayer+1)%2;
         return true;
     }
 
-    //CHeckmate
+    //Checkmate
     private void CheckMate(int team){
         DisplayVictory(team);
     }
@@ -200,9 +192,9 @@ public class Chessboard : MonoBehaviour
         // DOWN
         else if (attacker.currentY - y < -1 && attacker.currentX == x) SetAttackOffset(0,-1);
         // LEFT
-        else if(attacker.currentX - x < -1 && attacker.currentY == y) SetAttackOffset(1,0);
+        else if(attacker.currentX - x < -1 && attacker.currentY == y) SetAttackOffset(-1,0);
         //RIGHT
-        else if(attacker.currentX - x > 1 && attacker.currentY == y) SetAttackOffset(-1,0);
+        else if(attacker.currentX - x > 1 && attacker.currentY == y) SetAttackOffset(1,0);
         // DOWN LEFT
         else if (attacker.currentY - y < -1 && attacker.currentX - x < -1) SetAttackOffset(-1,-1);
         //DOWN RIGHT
@@ -217,28 +209,34 @@ public class Chessboard : MonoBehaviour
             StartCoroutine(attacker.AttackingCoroutine()); 
             yield return new WaitForSeconds(1f);
             StartCoroutine(target.DeathCo());
-            yield return new WaitForSeconds(.5f);
+            yield return new WaitForSeconds(1f);
             Destroy(target.gameObject);
             chessPieces[x + attackOffsetX, y + attackOffsetY] = attacker;
             chessPieces[prePos.x, prePos.y] = null;
+            //chessPieces[target.currentX, target.currentY] = null;
             MoveToCo(x, y);
             yield break;
         }
         
         chessPieces[x + attackOffsetX, y + attackOffsetY] = attacker;
         chessPieces[prePos.x, prePos.y] = null;
+
+        //move to pos that close to the chess piece to attack
         MoveToCo(x + attackOffsetX, y+ attackOffsetY);
         yield return new WaitForSeconds(3f);
         StartCoroutine(attacker.AttackingCoroutine());
         yield return new WaitForSeconds(1f);
         StartCoroutine(target.DeathCo());
-        yield return new WaitForSeconds(.5f);
+        yield return new WaitForSeconds(1.5f);
         Destroy(target.gameObject);
         chessPieces[x, y] = attacker;
         chessPieces[prePos.x, prePos.y] = null;
+        //chessPieces[target.currentX, target.currentY] = null;
         
-        MoveToCo(x, y);
-        
+        //Move chess piece to the enemy pos after kill it
+        MoveToCo(x,y);
+        yield return new WaitForSeconds(.5f);
+        currentPlayer = (currentPlayer+1)%2;
     }
 
     private void MoveToCo(int x, int y){

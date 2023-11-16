@@ -58,6 +58,8 @@ public class ChessPiece : MonoBehaviour
         }
         anim.SetBool("walk", false);
         transform.position = targetPosition;
+        yield return new WaitForSeconds(1f);
+        
         isMoving = false;
     }
 
@@ -65,11 +67,13 @@ public class ChessPiece : MonoBehaviour
         anim.SetBool("attack", true);
         yield return new WaitForSeconds(1f);
         anim.SetBool("attack", false);
+        yield return new WaitForSeconds(1f);
+        isMoving = false;
     }
 
     public IEnumerator DeathCo(){
         anim.SetTrigger("die");
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(.5f);
     }
 
 }
