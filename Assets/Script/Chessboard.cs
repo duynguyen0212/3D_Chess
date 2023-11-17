@@ -4,6 +4,11 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
+public enum SpecialMove{
+    None = 0,
+    Castling,
+    Promotion
+}
 public class Chessboard : MonoBehaviour
 {
     private const int TILE_COUNT_X = 8;
@@ -20,7 +25,8 @@ public class Chessboard : MonoBehaviour
 
     [SerializeField] private GameObject PWScreen;
     private bool isPause;
-
+    private SpecialMove specialMove;
+    private List<Vector2Int[]> moveList = new List<Vector2Int[]>();
     [Header("Tiles")]
     [SerializeField] private Material tileMaterial;
     [SerializeField] private float tileSize = 1.0f;
@@ -95,6 +101,9 @@ public class Chessboard : MonoBehaviour
                     currentPiece = chessPieces[hitPosition.x, hitPosition.y];
                     //Get avaialable move and highlight it
                     availableMoves = currentPiece.GetAvailableMove(ref chessPieces, TILE_COUNT_X, TILE_COUNT_Y);
+
+                    //Get special move
+                    specialMove = currentPiece.GetSpecialMoves(ref chessPieces, ref moveList, ref availableMoves);
                     HighlightTiles();
                     return;                   
                 }
@@ -142,6 +151,7 @@ public class Chessboard : MonoBehaviour
                 else
                     CheckMate(1);
             }
+            moveList.Add(new Vector2Int[] { prePos, new Vector2Int(x,y)});
             return true;
         }
 
@@ -151,6 +161,8 @@ public class Chessboard : MonoBehaviour
         chessPieces[x,y].currentX = x;
         chessPieces[x,y].currentY = y;
         chessPieces[x,y].SetPos(GetTileCenter(x,y));
+        moveList.Add(new Vector2Int[] { prePos, new Vector2Int(x,y)});
+        ProcessSpecialMove();
         return true;
     }
 
@@ -212,7 +224,48 @@ public class Chessboard : MonoBehaviour
         chessPieces[x,y].SetPos(GetTileCenter(x,y));
 
     }
+    //special move
+    private void ProcessSpecialMove(){
+        if(specialMove == SpecialMove.Castling){
+            Vector2Int[] lastMove = moveList[moveList.Count - 1];
+            // Left Rook
+            if (lastMove [1].x == 1)
+            {
+                if (lastMove[1].y == 0) // blue side
+                {
+                    ChessPiece rook = chessPieces [0, 0];
+                    chessPieces [2, 0] = rook;
+                    MoveToCo(2, 0);
+                    chessPieces [0, 0] = null;
+                }
+                else if (lastMove[1].y == 7) //red side
+                {
+                    ChessPiece rook = chessPieces [0, 7];
+                    chessPieces [2, 7] = rook;
+                    MoveToCo(2, 7);
+                    chessPieces [0, 7] = null;
+                }
+            }
+            // right rook
+            else if(lastMove[1].x == 5){
+                if (lastMove[1].y == 0) // blue side
+                {
+                    ChessPiece rook = chessPieces [7, 0];
+                    chessPieces [4, 0] = rook;
+                    MoveToCo(4, 0);
+                    chessPieces [7, 0] = null;
+                }
+                else if (lastMove[1].y == 7) //red side
+                {
+                    ChessPiece rook = chessPieces [7, 7];
+                    chessPieces [4, 7] = rook;
+                    MoveToCo(4, 7);
+                    chessPieces [7, 7] = null;
+                }
 
+            }
+        }
+    }
     //Checkmate
     private void CheckMate(int team){
         DisplayVictory(team);
@@ -303,8 +356,8 @@ public class Chessboard : MonoBehaviour
         chessPieces[0,0] = SpawningSinglePiece(ChessPieceType.Rook, blueTeam, blueTeamPrefab);
         chessPieces[1,0] = SpawningSinglePiece(ChessPieceType.Knight, blueTeam, blueTeamPrefab);
         chessPieces[2,0] = SpawningSinglePiece(ChessPieceType.Bishop, blueTeam, blueTeamPrefab);
-        chessPieces[3,0] = SpawningSinglePiece(ChessPieceType.Queen, blueTeam, blueTeamPrefab);
-        chessPieces[4,0] = SpawningSinglePiece(ChessPieceType.King, blueTeam, blueTeamPrefab);
+        chessPieces[3,0] = SpawningSinglePiece(ChessPieceType.King, blueTeam, blueTeamPrefab);
+        chessPieces[4,0] = SpawningSinglePiece(ChessPieceType.Queen, blueTeam, blueTeamPrefab);
         chessPieces[5,0] = SpawningSinglePiece(ChessPieceType.Bishop, blueTeam, blueTeamPrefab);
         chessPieces[6,0] = SpawningSinglePiece(ChessPieceType.Knight, blueTeam, blueTeamPrefab);
         chessPieces[7,0] = SpawningSinglePiece(ChessPieceType.Rook, blueTeam, blueTeamPrefab);
@@ -315,8 +368,8 @@ public class Chessboard : MonoBehaviour
         chessPieces[0,7] = SpawningSinglePiece(ChessPieceType.Rook, redTeam, redTeamPrefab);
         chessPieces[1,7] = SpawningSinglePiece(ChessPieceType.Knight, redTeam, redTeamPrefab);
         chessPieces[2,7] = SpawningSinglePiece(ChessPieceType.Bishop, redTeam, redTeamPrefab);
-        chessPieces[3,7] = SpawningSinglePiece(ChessPieceType.Queen, redTeam, redTeamPrefab);
-        chessPieces[4,7] = SpawningSinglePiece(ChessPieceType.King, redTeam, redTeamPrefab);
+        chessPieces[3,7] = SpawningSinglePiece(ChessPieceType.King, redTeam, redTeamPrefab);
+        chessPieces[4,7] = SpawningSinglePiece(ChessPieceType.Queen, redTeam, redTeamPrefab);
         chessPieces[5,7] = SpawningSinglePiece(ChessPieceType.Bishop, redTeam, redTeamPrefab);
         chessPieces[6,7] = SpawningSinglePiece(ChessPieceType.Knight, redTeam, redTeamPrefab);
         chessPieces[7,7] = SpawningSinglePiece(ChessPieceType.Rook, redTeam, redTeamPrefab);
