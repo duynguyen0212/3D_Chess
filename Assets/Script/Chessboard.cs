@@ -84,7 +84,7 @@ public class Chessboard : MonoBehaviour
             }
 
             if(currentPlayer == 0 && currentPiece.isMoving == false && playerAction == false){
-                ChessPiece AIChesspiece = randomAI.GetRandomPiece();
+                ChessPiece AIChesspiece = randomAI.GetRandomPiece(ref chessPieces);
                 Vector2Int AIMove;
                 availableMoves = AIChesspiece.GetAvailableMove(ref chessPieces, TILE_COUNT_X, TILE_COUNT_Y);
                 AIMove = availableMoves[UnityEngine.Random.Range(0, availableMoves.Count)];
@@ -94,6 +94,7 @@ public class Chessboard : MonoBehaviour
             }
             if(Input.GetMouseButtonDown(0)){
                 if(chessPieces[hitPosition.x, hitPosition.y] != null && chessPieces[hitPosition.x, hitPosition.y].team == 1 && currentPlayer == 1){
+                //if(chessPieces[hitPosition.x, hitPosition.y] != null && chessPieces[hitPosition.x, hitPosition.y].team==currentPlayer ){
                     //player's turn
                     isClicked = true;
                     if(currentPiece != chessPieces[hitPosition.x, hitPosition.y]) RevHighlightTiles();
@@ -144,6 +145,7 @@ public class Chessboard : MonoBehaviour
         {
             playerAction = true;
             ChessPiece capturedPiece = chessPieces[x, y];
+            randomAI.RemoveChessPiece(x, y);
             StartCoroutine(AttackChessPiece(cp, capturedPiece, x, y, prePos));
             if(capturedPiece.type == ChessPieceType.King){
                 if(capturedPiece.team == 1)
@@ -263,6 +265,31 @@ public class Chessboard : MonoBehaviour
                     chessPieces [7, 7] = null;
                 }
 
+            }
+        }
+
+        if(specialMove == SpecialMove.Promotion){
+            Vector2Int[] lastMove = moveList[moveList.Count - 1];
+            ChessPiece targetPawn= chessPieces [lastMove [1].x, lastMove[1].y];
+
+            if(targetPawn.type == ChessPieceType.Pawn){
+                if (targetPawn.team == 0 && lastMove [1].y == 7)
+                {
+                    ChessPiece newQueen = SpawningSinglePiece(ChessPieceType.Queen, 0, blueTeamPrefab);
+                    Destroy(chessPieces[lastMove [1].x, lastMove [1].y].gameObject);
+                    chessPieces[lastMove [1].x, lastMove [1].y] = newQueen;
+                    PositionSinglePiece(lastMove [1].x, lastMove [1].y, true);
+                }
+
+                if (targetPawn.team == 1 && lastMove [1].y == 0)
+                {
+                    ChessPiece newQueen = SpawningSinglePiece(ChessPieceType.Queen, 1, redTeamPrefab);
+                    Destroy(chessPieces[lastMove [1].x, lastMove [1].y].gameObject);
+                    chessPieces[lastMove [1].x, lastMove [1].y] = newQueen;
+                    PositionSinglePiece(lastMove [1].x, lastMove [1].y);
+                }
+                currentPiece.isMoving = false;
+                playerAction = false;
             }
         }
     }

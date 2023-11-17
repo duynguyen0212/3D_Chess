@@ -36,6 +36,17 @@ public class Pawn : ChessPiece
 
         return r;
     }
+
+    public override SpecialMove GetSpecialMoves(ref ChessPiece[,] board, ref List<Vector2Int[]> moveList, ref List<Vector2Int> availableMoves){
+        SpecialMove r = SpecialMove.None;
+
+        int direction = (team==0) ? 1:-1;
+        if((team==1 && currentY==1) || (team==0 && currentY==6))
+            return SpecialMove.Promotion;
+
+        return r;
+    
+    }
     // Start is called before the first frame update
     void Start()
     {
