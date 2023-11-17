@@ -13,7 +13,6 @@ public class RandomAI : MonoBehaviour
     // Function to get a random piece with available moves
     public ChessPiece GetRandomPiece()
     {
-        Debug.Log("waiting for pieces");
         ChessPiece cp;
         for (int i = 0; i < 8; i++)
         {

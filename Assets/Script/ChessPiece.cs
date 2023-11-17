@@ -22,8 +22,8 @@ public class ChessPiece : MonoBehaviour
     public bool isProcessing;
     public bool isMoving;
     public virtual List<Vector2Int> GetAvailableMove(ref ChessPiece[,] board, int tileCountX, int tileCountY){
+        //testing, it will get overriden by chess piece classes
         List<Vector2Int> r = new List<Vector2Int>();
-
         r.Add(new Vector2Int(3,3));
         r.Add(new Vector2Int(3,4));
         r.Add(new Vector2Int(4,3));
@@ -33,26 +33,25 @@ public class ChessPiece : MonoBehaviour
 
     void Update(){
         transform.localScale = Vector3.Lerp(transform.localScale, desiredScale, Time.deltaTime*10);
-        StartCoroutine(MoveToPosition(desiredPos, 20f));
     }
     public virtual void SetPos(Vector3 pos){
         desiredPos =pos;
-        StartCoroutine(MoveToPosition(desiredPos, 2f));
+        StartCoroutine(MoveToPosition(desiredPos));
         
     } 
     public virtual void SetScale(Vector3 scale){
         desiredScale =scale;
         transform.position = desiredScale;
     } 
-    private IEnumerator MoveToPosition(Vector3 targetPosition, float duration)
+    private IEnumerator MoveToPosition(Vector3 targetPosition)
     {
         float elapsedTime = 0f;
         isMoving = true;
         Vector3 startingPosition = transform.position;
         anim.SetBool("walk", true);
-        while (elapsedTime < duration)
+        while (elapsedTime < 2f)
         {
-            transform.position = Vector3.Lerp(startingPosition, targetPosition, elapsedTime / duration);
+            transform.position = Vector3.Lerp(startingPosition, targetPosition, elapsedTime / 2f);
             elapsedTime += Time.deltaTime;
             yield return null;
         }
@@ -64,7 +63,9 @@ public class ChessPiece : MonoBehaviour
     }
 
     public IEnumerator AttackingCoroutine(){
+        isMoving = true;
         anim.SetBool("attack", true);
+
         yield return new WaitForSeconds(1f);
         anim.SetBool("attack", false);
         yield return new WaitForSeconds(1f);
