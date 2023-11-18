@@ -40,6 +40,30 @@ public class RandomAI : MonoBehaviour
 
         return cp;
     }
+    public List<ChessPiece> GetAllPieces(ChessPiece[,] board, int team)
+    {
+        List<ChessPiece> pieces = new List<ChessPiece>();
+        for (int x = 0; x < 8; x++)
+        {
+            for (int y = 0; y < 8; y++)
+            {
+                ChessPiece piece = board[x, y];
+                if (piece != null && piece.team == team)
+                {
+                    pieces.Add(piece);
+                }
+            }
+        }
+        return pieces;
+    }
+
+    public void testingfunc(ChessPiece[,] board){
+         List<ChessPiece> allPieces = GetAllPieces(board, 0);
+         foreach (ChessPiece piece in allPieces){
+            List<Vector2Int> availableMoves = piece.GetAvailableMove(ref board, 8, 8);
+            Debug.Log(availableMoves.Count);
+         }
+    }
 
     public void RemoveChessPiece(int x, int y){
         for (int i = 0; i < chessPieceCanMove.Count; i++)

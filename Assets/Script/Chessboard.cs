@@ -39,8 +39,9 @@ public class Chessboard : MonoBehaviour
     public int currentPlayer = 1;
     private int attackOffsetX, attackOffsetY;
     public RandomAI randomAI;
+    public MinimaxChess minimaxAI;
     public bool playerAction;
-
+    
     private void Awake() {
         GenerateAllTiles(tileSize, TILE_COUNT_X, TILE_COUNT_Y);
         SpawnAllPieces();
@@ -84,6 +85,7 @@ public class Chessboard : MonoBehaviour
             }
 
             if(currentPlayer == 0 && currentPiece.isMoving == false && playerAction == false){
+                //random ai
                 ChessPiece AIChesspiece = randomAI.GetRandomPiece(ref chessPieces);
                 Vector2Int AIMove;
                 availableMoves = AIChesspiece.GetAvailableMove(ref chessPieces, TILE_COUNT_X, TILE_COUNT_Y);
@@ -91,6 +93,16 @@ public class Chessboard : MonoBehaviour
                 MoveTo(AIChesspiece, AIMove.x, AIMove.y);
                 RevHighlightTiles(); 
                 currentPlayer = (currentPlayer+1)%2;
+                // randomAI.testingfunc(chessPieces);
+
+                //minimax ai
+                //var bestPieceMove = minimaxAI.GetBestPieceMove(chessPieces, 3, true);
+                // ChessPiece bestPiece = bestPieceMove.piece;
+                // Vector2Int bestMove = bestPieceMove.move;
+                // MoveTo(bestPiece, bestMove.x, bestMove.y);
+                // Debug.Log("moving " +bestPiece.type+" " +bestPiece.team+ " " +bestMove.x +", " +bestMove.y);
+                // RevHighlightTiles(); 
+                // currentPlayer = (currentPlayer+1)%2;
             }
             if(Input.GetMouseButtonDown(0)){
                 if(chessPieces[hitPosition.x, hitPosition.y] != null && chessPieces[hitPosition.x, hitPosition.y].team == 1 && currentPlayer == 1){
@@ -410,6 +422,7 @@ public class Chessboard : MonoBehaviour
         cp.type = type;
         cp.team = team;
         
+        
         return cp;
 
     }   
@@ -446,7 +459,7 @@ public class Chessboard : MonoBehaviour
         chessPieces[x,y].transform.position = GetTileCenter(x, y);
     }
 
-    private Vector3 GetTileCenter(int x, int y){
+    public Vector3 GetTileCenter(int x, int y){
         return new Vector3(x*tileSize, yOffset, y*tileSize) -bounds + new Vector3(tileSize/2,0,tileSize/2);
     }
 

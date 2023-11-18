@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Queen : ChessPiece
 {
-     public override List<Vector2Int> GetAvailableMove(ref ChessPiece [,] board, int tileCountX, int tileCountY)
+    public override List<Vector2Int> GetAvailableMove(ref ChessPiece [,] board, int tileCountX, int tileCountY)
     {
         List<Vector2Int> r = new List<Vector2Int>();
         // Down

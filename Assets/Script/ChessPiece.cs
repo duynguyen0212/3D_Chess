@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -21,6 +22,8 @@ public class ChessPiece : MonoBehaviour
     public Animator anim;
     public bool isProcessing;
     public bool isMoving;
+    public AudioSource walkSound, attackSound, dieSound;
+
     public virtual List<Vector2Int> GetAvailableMove(ref ChessPiece[,] board, int tileCountX, int tileCountY){
         //testing, it will get overriden by chess piece classes
         List<Vector2Int> r = new List<Vector2Int>();
@@ -49,6 +52,7 @@ public class ChessPiece : MonoBehaviour
     } 
     private IEnumerator MoveToPosition(Vector3 targetPosition)
     {
+        walkSound.Play();
         float elapsedTime = 0f;
         isMoving = true;
         Vector3 startingPosition = transform.position;
@@ -62,11 +66,12 @@ public class ChessPiece : MonoBehaviour
         anim.SetBool("walk", false);
         transform.position = targetPosition;
         yield return new WaitForSeconds(1f);
-        
+        walkSound.Stop();
         isMoving = false;
     }
 
     public IEnumerator AttackingCoroutine(){
+        attackSound.Play();
         isMoving = true;
         anim.SetBool("attack", true);
 
@@ -74,9 +79,11 @@ public class ChessPiece : MonoBehaviour
         anim.SetBool("attack", false);
         yield return new WaitForSeconds(1f);
         isMoving = false;
+        attackSound.Stop();
     }
 
     public IEnumerator DeathCo(){
+        dieSound.Play();
         anim.SetTrigger("die");
         yield return new WaitForSeconds(.5f);
     }
